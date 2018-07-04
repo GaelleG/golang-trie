@@ -41,6 +41,10 @@ func main() {
 	mergeNodes(&root)
 
 	fmt.Printf(root.String() + "\n")
+
+	leafs := getLeafs(&root)
+	log.Print("sheets: ", len(leafs))
+	log.Print("words: ", len(words))
 }
 
 func getWords() []string {
@@ -75,5 +79,17 @@ func mergeNodes(node *Node) {
 		for _, child := range node.Children {
 			mergeNodes(child)
 		}
+	}
+}
+
+func getLeafs(node *Node) []Node {
+	leafs := []Node{}
+	if len(node.Children) == 0 {
+		return append(leafs, *node)
+	} else {
+		for _, child := range node.Children {
+			leafs = append(leafs, getLeafs(child)...)
+		}
+		return leafs
 	}
 }
