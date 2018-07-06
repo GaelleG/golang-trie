@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -40,13 +42,31 @@ func main() {
 		currentNode.Children = append(currentNode.Children, &endNode)
 	}
 
-	mergeNodes(&root)
+	// mergeNodes(&root)
 
 	fmt.Printf(root.String() + "\n")
 
 	leafs := getLeafs(&root)
 	log.Print("sheets: ", len(leafs))
 	log.Print("words: ", len(words))
+
+	for true {
+		reader := bufio.NewReader(os.Stdin)
+		answer, _ := reader.ReadString('\n')
+
+		prefix := ""
+		if len(answer) > 1 {
+			prefix = answer[0:len(answer)-1]
+		}
+		log.Print("[" + prefix + "]")
+		err, prefixNode := findPrefixNode(&root, prefix)
+		if err != nil {
+			log.Print(err)
+		} else {
+			nodeWords := []string{}
+			log.Print(getNodeWords(prefixNode, prefix[0:len(prefix)-1], nodeWords))
+		}
+	}
 }
 
 func getWords() []string {
@@ -93,5 +113,35 @@ func getLeafs(node *Node) []Node {
 			leafs = append(leafs, getLeafs(child)...)
 		}
 		return leafs
+	}
+}
+
+func findPrefixNode(node *Node, prefix string) (error, *Node) {
+	word := ""
+	currentNode := node
+	parsed := prefix
+	for len(parsed) > 0 {
+		value := parsed[0:1]
+		err, child := getChild(currentNode, value)
+		if err != nil {
+			return errors.New("Prefix [" + prefix + "] not found. Stopped at [" + word + "]."), node
+		} else {
+			word = word + value
+			currentNode = child
+			parsed = parsed[1:len(parsed)]
+		}
+	}
+	return nil, currentNode
+}
+
+func getNodeWords(node *Node, prefix string, words []string) []string {
+	if len(node.Children) == 0 {
+		return append(words, prefix+node.Value)
+	} else {
+		words := []string{}
+		for _, child := range node.Children {
+			words = append(words, getNodeWords(child, prefix+node.Value, words)...)
+		}
+		return words
 	}
 }
