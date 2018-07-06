@@ -54,17 +54,21 @@ func main() {
 		reader := bufio.NewReader(os.Stdin)
 		answer, _ := reader.ReadString('\n')
 
-		prefix := ""
-		if len(answer) > 1 {
-			prefix = answer[0:len(answer)-1]
-		}
-		log.Print("[" + prefix + "]")
-		err, prefixNode := findPrefixNode(&root, prefix)
-		if err != nil {
-			log.Print(err)
+		nodeWords := []string{}
+
+		if len(answer) < 2 {
+			log.Print(getNodeWords(&root, "", nodeWords))
 		} else {
-			nodeWords := []string{}
-			log.Print(getNodeWords(prefixNode, prefix[0:len(prefix)-1], nodeWords))
+			prefix := answer[0 : len(answer)-1]
+			log.Print("[" + prefix + "]")
+
+			err, prefixNode := findPrefixNode(&root, prefix)
+			if err != nil {
+				log.Print(err)
+			} else {
+				prefix = prefix[0 : len(prefix)-1]
+				log.Print(getNodeWords(prefixNode, prefix, nodeWords))
+			}
 		}
 	}
 }
