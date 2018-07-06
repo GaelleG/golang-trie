@@ -36,6 +36,8 @@ func main() {
 			currentNode = child
 			parsed = parsed[1:len(parsed)]
 		}
+		endNode := Node{".", []*Node{}}
+		currentNode.Children = append(currentNode.Children, &endNode)
 	}
 
 	mergeNodes(&root)
